@@ -30,10 +30,21 @@ RUN curl -sSL https://get.helm.sh/helm-v3.16.2-linux-amd64.tar.gz | tar -xz \
 # Enable bash-completion package
 RUN apk add --no-cache bash-completion
 
-# Add completions and alias to bashrc
-RUN echo "source <(kubectl completion bash)" >> /root/.bashrc && \
-    echo "source <(talosctl completion bash)" >> /root/.bashrc && \
-    echo "source <(flux completion bash)" >> /root/.bashrc && \
-    echo "source <(helm completion bash)" >> /root/.bashrc && \
+# Create completion dirs
+RUN mkdir -p /etc/bash_completion.d /usr/share/zsh/site-functions
+
+# Generate and install bash completions
+RUN kubectl completion bash > /etc/bash_completion.d/kubectl && \
+    talosctl completion bash > /etc/bash_completion.d/talosctl && \
+    flux completion bash > /etc/bash_completion.d/flux && \
+    helm completion bash > /etc/bash_completion.d/helm && \
     echo "alias k=kubectl" >> /root/.bashrc && \
     echo "complete -F __start_kubectl k" >> /root/.bashrc
+
+# Generate and install zsh completions
+RUN kubectl completion zsh > /usr/share/zsh/site-functions/_kubectl && \
+    talosctl completion zsh > /usr/share/zsh/site-functions/_talosctl && \
+    flux completion zsh > /usr/share/zsh/site-functions/_flux && \
+    helm completion zsh > /usr/share/zsh/site-functions/_helm && \
+    echo "alias k=kubectl" >> /root/.zshrc && \
+    echo "compdef __start_kubectl k" >> /root/.zshrc
