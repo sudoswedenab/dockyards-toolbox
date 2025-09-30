@@ -1,5 +1,8 @@
 FROM nicolaka/netshoot:latest
 
+ARG TARGETOS
+ARG TARGETARCH
+
 # Install required packages and dependencies
 RUN apk add --no-cache \
       curl \
@@ -11,21 +14,21 @@ RUN apk add --no-cache \
       git
 
 # Install kubectl
-RUN curl -sLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+RUN curl -sLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/${TARGETOS}/${TARGETARCH}/kubectl" \
     && install -m 0755 kubectl /usr/local/bin/kubectl \
     && rm kubectl
 
 # Install talosctl
-RUN curl -sL "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-amd64" -o /usr/local/bin/talosctl \
+RUN curl -sL "https://github.com/siderolabs/talos/releases/latest/download/talosctl-${TARGETOS}-${TARGETARCH}" -o /usr/local/bin/talosctl \
     && chmod +x /usr/local/bin/talosctl
 
 # Install flux CLI
 RUN curl -s https://fluxcd.io/install.sh | bash
 
 # Install Helm
-RUN curl -sSL https://get.helm.sh/helm-v3.16.2-linux-amd64.tar.gz | tar -xz \
-    && mv linux-amd64/helm /usr/local/bin/helm \
-    && rm -rf linux-amd64
+RUN curl -sSL https://get.helm.sh/helm-v3.16.2-${TARGETOS}-${TARGETARCH}.tar.gz | tar -xz \
+    && mv ${TARGETOS}-${TARGETARCH}/helm /usr/local/bin/helm \
+    && rm -rf ${TARGETOS}-${TARGETARCH}
 
 # Enable bash-completion package
 RUN apk add --no-cache bash-completion
